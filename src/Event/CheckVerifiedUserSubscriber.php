@@ -3,8 +3,8 @@
 
 namespace Pantheon\TwoFactorBundle\Event\Subscriber;
 
-use App\TwoFactor\Domain\Exception\IsAuthenticatedPartiallyException;
-use Pantheon\UserBundle\Entity\User;
+use Pantheon\TwoFactorBundle\Exception\IsAuthenticatedPartiallyException;
+use Pantheon\TwoFactorBundle\Manager\TwoFactorManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\UserPassportInterface;
 use Symfony\Component\Security\Http\Event\CheckPassportEvent;
@@ -22,15 +22,14 @@ class CheckVerifiedUserSubscriber implements EventSubscriberInterface
 
     public function onCheckPassport(CheckPassportEvent $event)
     {
-        // срабатывает ДО "аунтикейтед суксесс" или "файлюр"
         $passport = $event->getPassport();
         if (!$passport instanceof UserPassportInterface) {
             throw new \Exception('Unexpected passport type');
         }
         $user = $passport->getUser();
-        if (!$user instanceof User) {
-            throw new \Exception('Unexpected user type');
-        }
+//        if (!$user instanceof User) {
+//            throw new \Exception('Unexpected user type');
+//        }
         if ($this->twoFactorManager->isAuthenticatedPartially($user)) {
             throw new IsAuthenticatedPartiallyException('bad');
         }
