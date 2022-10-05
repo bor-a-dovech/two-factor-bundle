@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Two factor authentication'|trans }}{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block content %}
+    <div class="container-fluid h-100">
+        <div class="row h-100">
+            <div class="col-12 col-md-6 offset-md-3 col-xl-4 offset-xl-4 col-xxxl-4 offset-xxxl-4 h-100">
+                <div class="login">
+                    <div class="login-logo">
+                        <img src="{{ asset('build/images/logo.svg') }}" alt="">
+                    </div>
+                    <div class="login-title">
+                        <h2>{{ 'Document security system'|trans }}</h2>
+                    </div>
+
+                    <p>
+                        {% if message is defined and message is not null %}
+                            {{ message|trans }}
+                        {% else %}
+                            <b>{{ user.fio ?? user.username }}</b>, вам выслан код
+                            подтверждения.
+                            Для входа в систему введите код в форму ниже:
+                        {% endif %}
+                    </p>
+
+                    {% for error in app.flashes('error') %}
+                        <div class="alert alert-red">
+                            <div class="alert-content">{{ error|trans|raw }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                    {% for notice in app.flashes('notice') %}
+                        <div class="alert alert-green">
+                            <div class="alert-content">{{ notice|trans|raw }}
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <div class="mb-40">
+                        {{ form_start(form) }}
+                            {{ form_widget(form.code) }}
+                            {{ form_widget(form.submit) }}
+                            <a type="button" href="/logout" class="button button-solid button-secondary mt-12 w-100">
+                                {% trans %}Cancel{% endtrans %}
+                            </a>
+                        {{ form_end(form) }}
+
+                    </div>
+                    <p>
+                        <a href="#">Отправить код еще раз</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
