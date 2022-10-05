@@ -1,0 +1,8 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    Pantheon\TwoFactorBundle\:
+        resource: '../../*'
+        exclude: '../../{DependencyInjection,DTO,Entity,Migrations,Tests,Security/Event,Kernel.php}'

@@ -1,0 +1,33 @@
+{
+    "type": "symfony-bundle",
+    "name": "pantheon/two-factor-bundle",
+    "license": "proprietary",
+    "require": {
+        "php": "^7.3||^8.1",
+        "ext-ctype": "*",
+        "ext-iconv": "*",
+        "symfony/console": "5.4.*",
+        "symfony/dotenv": "5.4.*",
+        "symfony/flex": "^1.17|^2",
+        "symfony/framework-bundle": "5.4.*",
+        "symfony/runtime": "5.4.*",
+        "symfony/yaml": "5.4.*"
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true,
+            "symfony/flex": true,
+            "symfony/runtime": true
+        },
+        "optimize-autoloader": true,
+        "preferred-install": {
+            "*": "dist"
+        },
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "Pantheon\\TwoFactorBundle\\": "src/"
+        }
+    }
+}
