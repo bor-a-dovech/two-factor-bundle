@@ -2,8 +2,8 @@
 
 namespace Pantheon\TwoFactorBundle\Security;
 
-use App\TwoFactor\Domain\Exception\IsAuthenticatedPartiallyException;
-use App\TwoFactor\Manager\TwoFactorManager;
+use Pantheon\TwoFactorBundle\Exception\IsAuthenticatedPartiallyException;
+use Pantheon\TwoFactorBundle\Manager\TwoFactorManager;
 use Pantheon\UserBundle\Entity\User;
 use Pantheon\UserBundle\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
