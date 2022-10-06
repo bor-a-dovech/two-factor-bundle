@@ -5,90 +5,71 @@ namespace Pantheon\TwoFactorBundle\Manager;
 use App\TwoFactor\Domain\Exception\SendCodeException;
 use App\TwoFactor\Provider\ProviderInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Pantheon\TwoFactorBundle\Entity\TwoFactorAuthenticableInterface;
+use Pantheon\TwoFactorBundle\Service\Code\CheckerInterface;
+use Pantheon\TwoFactorBundle\Service\Code\GeneratorInterface;
+use Pantheon\TwoFactorBundle\Service\Code\SaverInterface;
+use Pantheon\TwoFactorBundle\Service\Code\SenderInterface;
+use Pantheon\TwoFactorBundle\Service\User\UserStatusInterface;
 use Pantheon\UserBundle\Entity\User;
+use Symfony\Component\Security\Core\User\UserInterface;
 
-class TwoFactorManager
+class TwoFactorManager implements TwoFactorManagerInterface
 {
-    private EntityManagerInterface $em;
-
     public function __construct(
-        EntityManagerInterface $em,
-        ProviderInterface $provider
+        GeneratorInterface $generator,
+        SaverInterface $saver,
+        SenderInterface $sender,
+        CheckerInterface $checker,
+        UserStatusInterface $userStatus
     )
     {
-        $this->em = $em;
-        $this->provider = $provider;
+        $this->generator = $generator;
+        $this->saver = $saver;
+        $this->sender = $sender;
+        $this->checker = $checker;
+        $this->userStatus = $userStatus;
     }
 
-    /**
-     * @param User $user
-     * @return void
-     * @throws SendCodeException
-     */
-    public function sendCode(User $user) : void
+    public function sendCode(UserInterface $user) : void
     {
-        try {
-            $this->provider->sendCode($user);
-        } catch (\Throwable $e) {
-            throw new SendCodeException($e->getMessage());
-        }
+        $code = $this->generator->generateCode($user);
+        $this->saver->saveCode($code, $user);
+        $this->sender->sendCode($code, $user);
     }
 
-    /**
-     * @param User $user
-     * @param string $code
-     * @return bool
-     */
-    public function isCodeValid(User $user, string $code) : bool
+    public function isCodeValid(string $code, UserInterface $user) : bool
     {
-        return $this->provider->isCodeValid($user, $code);
+        return $this->checker->isCodeValid($code, $user);
     }
 
-    /**
-     * @return bool
-     */
     public function isTwoFactorAuthenticationEnabled() : bool
     {
-        return $_ENV['USE2FACTOR'] ?? false;
+        return $_ENV['IS_TWO_FACTOR_AUTHENTICATON_ENABLED'] ?? false;
     }
 
-    /**
-     * @param User $user
-     * @return void
-     */
-    public function setAuthenticatedPartially(User $user)
+    public function isTwoFactorAuthenticationEnabledForUser(UserInterface $user) : bool
     {
-        $user->setComment('authenticated_partially');
-        $this->em->persist($user);
-        $this->em->flush();
+        return (($user instanceof TwoFactorAuthenticableInterface) and ($user->isTwoFactorEnabled()));
     }
 
-    /**
-     * @param User $user
-     * @return void
-     */
-    public function setAutheticatedFully(User $user)
+    public function setAuthenticatedPartially(UserInterface $user) : void
     {
-        $user->setComment(null);
-        $this->em->persist($user);
-        $this->em->flush();
+        $this->userStatus->setAuthenticatedPartially($user);
     }
 
-    /**
-     * @param User $user
-     * @return bool
-     */
-    public function isAuthenticatedPartially(User $user) : bool
+    public function setAutheticatedFully(UserInterface $user) : void
     {
-        return ($user->getComment() == 'authenticated_partially');
+        $this->userStatus->setAutheticatedFully($user);
     }
 
-    /**
-     * @param User $user
-     * @return bool
-     */
-    public function isAuthenticatedFully(User $user) : bool
+    public function isAuthenticatedPartially(UserInterface $user) : bool
     {
-        return (($user) and (!$user->getComment()));
+        return $this->userStatus->isAuthenticatedPartially($user);
+    }
+
+    public function isAuthenticatedFully(UserInterface $user) : bool
+    {
+        return $this->userStatus->isAuthenticatedFully($user);
     }
 }
