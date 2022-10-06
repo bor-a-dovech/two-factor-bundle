@@ -1,6 +1,6 @@
 <?php
 
-namespace Pantheon\TwoFactorBundle\Form;
+namespace Pantheon\TwoFactorBundle\Form\Type;
 
 use Pantheon\TwoFactorBundle\Form\Type\TwoFactorCodeTypeInterface;
 use Symfony\Component\Form\AbstractType;

@@ -42,7 +42,7 @@ class ProfileUserStatus implements UserStatusInterface
      * @param User $user
      * @return void
      */
-    public function setAutheticatedFully(UserInterface $user)
+    public function setAutheticatedFully(UserInterface $user) : void
     {
         $user->setComment(null);
         $this->em->persist($user);

@@ -1,6 +1,6 @@
 <?php
 
-namespace Pantheon\TwoFactorBundle\Repository;
+namespace Pantheon\TwoFactorBundle\CodeRepository;
 
 use Symfony\Component\Security\Core\User\UserInterface;
 

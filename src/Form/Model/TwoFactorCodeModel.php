@@ -1,6 +1,6 @@
 <?php
 
-namespace Pantheon\TwoFactorBundle\Form;
+namespace Pantheon\TwoFactorBundle\Form\Model;
 
 use Pantheon\TwoFactorBundle\Form\Model\TwoFactorCodeModelInterface;
 

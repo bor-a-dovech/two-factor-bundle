@@ -12,7 +12,7 @@ interface TwoFactorManagerInterface
 {
     public function sendCode(UserInterface $user) : void;
 
-    public function isCodeValid(UserInterface $user, string $code);
+    public function isCodeValid(string $code, UserInterface $user);
 
     public function isTwoFactorAuthenticationEnabled();
 

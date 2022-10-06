@@ -1,6 +1,6 @@
 <?php
 
-namespace Pantheon\TwoFactorBundle\Service\Code;
+namespace Pantheon\TwoFactorBundle\Service\Code\Generator;
 
 
 use Symfony\Component\Security\Core\User\UserInterface;

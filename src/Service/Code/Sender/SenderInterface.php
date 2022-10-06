@@ -1,6 +1,6 @@
 <?php
 
-namespace Pantheon\TwoFactorBundle\Service\Code;
+namespace Pantheon\TwoFactorBundle\Service\Code\Sender;
 
 use Symfony\Component\Security\Core\User\UserInterface;
 

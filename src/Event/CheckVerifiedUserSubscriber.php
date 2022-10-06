@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Pantheon\TwoFactorBundle\Event\Subscriber;
+namespace Pantheon\TwoFactorBundle\Event;
 
 use Pantheon\TwoFactorBundle\Exception\IsAuthenticatedPartiallyException;
 use Pantheon\TwoFactorBundle\Manager\TwoFactorManager;
