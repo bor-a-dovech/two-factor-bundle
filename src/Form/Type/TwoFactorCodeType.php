@@ -8,7 +8,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 
-class TwoFactorCodeType extends AbstractType implements TwoFactorCodeTypeInterface
+class TwoFactorCodeType extends AbstractType
 {
     /**
     * @param FormBuilderInterface $builder

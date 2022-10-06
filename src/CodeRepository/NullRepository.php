@@ -11,7 +11,7 @@ class NullRepository implements CodeRepositoryInterface
         return null;
     }
 
-    public function saveCode(?string $code, UserInterface $user) : void
+    public function saveCode(string $code, UserInterface $user) : void
     {
     }
 }

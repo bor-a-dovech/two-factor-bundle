@@ -10,5 +10,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 interface GeneratorInterface
 {
-    public function generateCode(UserInterface $user) : ?string;
+    public function generate(UserInterface $user) : ?string;
+
+    public function isValid(string $code, UserInterface $user) : bool;
 }

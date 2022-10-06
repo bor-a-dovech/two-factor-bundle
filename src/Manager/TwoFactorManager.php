@@ -20,7 +20,7 @@ class TwoFactorManager implements TwoFactorManagerInterface
         GeneratorInterface $generator,
         SaverInterface $saver,
         SenderInterface $sender,
-        CheckerInterface $checker,
+        VerificatorInterface $checker,
         UserStatusInterface $userStatus
     )
     {
@@ -40,7 +40,8 @@ class TwoFactorManager implements TwoFactorManagerInterface
 
     public function isCodeValid(string $code, UserInterface $user) : bool
     {
-        return $this->checker->isCodeValid($code, $user);
+
+        return $this->generator->isCodeValid($code, $user);
     }
 
     public function isTwoFactorAuthenticationEnabled() : bool
@@ -48,7 +49,7 @@ class TwoFactorManager implements TwoFactorManagerInterface
         return $_ENV['IS_TWO_FACTOR_AUTHENTICATON_ENABLED'] ?? false;
     }
 
-    public function isTwoFactorAuthenticationEnabledForUser(UserInterface $user) : bool
+    public function isTwoFactorAuthenticationAllowedForUser(UserInterface $user) : bool
     {
         return (($user instanceof TwoFactorAuthenticableInterface) and ($user->isTwoFactorEnabled()));
     }
