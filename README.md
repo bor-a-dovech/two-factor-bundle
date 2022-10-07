@@ -30,10 +30,9 @@ two-factor-bundle:
   type: annotation
 ```
 
-.env:
-IS_TWO_FACTOR_AVAILABLE=true
-IS_TWO_FACTOR_REQUIRED_FOR_ALL=false
-
-
-custom_authenticator: Pantheon\TwoFactorBundle\Security\TwoFactorAuthenticator
-
+##### .env
+```txt
+IS_TWO_FACTOR_AUTHENTICATON_AVAILABLE=true
+LOGIN_ROUTE=app_login
+LOGIN_SUCCESS_ROUTE=front
+```
