@@ -1,10 +1,10 @@
 <?php
 
-namespace Pantheon\TwoFactorBundle\Service\Code\Checker;
+namespace Pantheon\TwoFactorBundle\Service\Code\Validator;
 
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class DayOfWeekChecker implements CheckerInterface
+class DayOfWeekValidator implements ValidatorInterface
 {
     public function isCodeValid(string $code, UserInterface $user) : bool
     {

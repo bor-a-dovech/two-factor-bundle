@@ -8,5 +8,5 @@ interface CodeRepositoryInterface
 {
     public function load(UserInterface $user) : ?string;
 
-    public function save(?string $code, UserInterface $user) : void;
+    public function save(string $code, UserInterface $user) : void;
 }

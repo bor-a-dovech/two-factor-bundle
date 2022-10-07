@@ -11,6 +11,9 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
+    parameters:
+        app.is_two_factor_authentication_available: '%env(IS_TWO_FACTOR_AUTHENTICATON_AVAILABLE)%'
+
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:

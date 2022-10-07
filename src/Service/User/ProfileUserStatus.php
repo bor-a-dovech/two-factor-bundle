@@ -4,27 +4,24 @@ namespace Pantheon\TwoFactorBundle\Service\User;
 
 use Symfony\Component\Security\Core\User\UserInterface;
 
-/**
- * TODO:
- */
 class ProfileUserStatus implements UserStatusInterface
 {
     /**
-     * @param User $user
+     * @param UserInterface $user
      * @return bool
      */
     public function isAuthenticatedPartially(UserInterface $user) : bool
     {
-        return ($user->getComment() == 'authenticated_partially');
+        return ($user->isAuthenticatedPartially());
     }
 
     /**
-     * @param User $user
+     * @param UserInterface $user
      * @return bool
      */
     public function isAuthenticatedFully(UserInterface $user) : bool
     {
-        return (($user) and (!$user->getComment()));
+        return !$user->isAuthenticatedPartially();
     }
 
     /**
@@ -33,18 +30,18 @@ class ProfileUserStatus implements UserStatusInterface
      */
     public function setAuthenticatedPartially(UserInterface $user) : void
     {
-        $user->setComment('authenticated_partially');
+        $user->setAuthenticatedPartially();
         $this->em->persist($user);
         $this->em->flush();
     }
 
     /**
-     * @param User $user
+     * @param UserInterface $user
      * @return void
      */
     public function setAutheticatedFully(UserInterface $user) : void
     {
-        $user->setComment(null);
+        $user->setAuthenticatedPartially(false);
         $this->em->persist($user);
         $this->em->flush();
     }

@@ -4,9 +4,6 @@ namespace Pantheon\TwoFactorBundle\Service\User;
 
 use Symfony\Component\Security\Core\User\UserInterface;
 
-/**
- * Смена статуса пользователя (аутентифицирован частично/польностью).
- */
 interface UserStatusInterface
 {
     public function isAuthenticatedPartially(UserInterface $user) : bool;
