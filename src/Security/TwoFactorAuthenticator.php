@@ -3,13 +3,12 @@
 namespace Pantheon\TwoFactorBundle\Security;
 
 use Pantheon\TwoFactorBundle\Exception\IsAuthenticatedPartiallyException;
-use Pantheon\TwoFactorBundle\Manager\TwoFactorManager;
-use Pantheon\UserBundle\Entity\User;
 use Pantheon\UserBundle\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Security;
@@ -24,68 +23,54 @@ class TwoFactorAuthenticator extends AbstractLoginFormAuthenticator
 {
     use TargetPathTrait;
 
-    public const LOGIN_ROUTE = 'app_login';
-    private TwoFactorManager $twoFactorManager;
+    private string $loginRoute;
+    private string $loginSuccessRoute;
+    private UrlGeneratorInterface $urlGenerator;
     private UserRepository $userRepository;
+    private TokenStorageInterface $tokenStorage;
 
     public function __construct(
-        private UrlGeneratorInterface $urlGenerator,
-        TwoFactorManager $twoFactorManager,
-        UserRepository $userRepository
-
+        string $loginRoute,
+        string $loginSuccessRoute,
+        UrlGeneratorInterface $urlGenerator,
+        TokenStorageInterface $tokenStorage
     )
     {
-        $this->userRepository = $userRepository;
-        $this->twoFactorManager = $twoFactorManager;
+        $this->loginRoute = $loginRoute;
+        $this->loginSuccessRoute = $loginSuccessRoute;
+        $this->urlGenerator = $urlGenerator;
+        $this->tokenStorage = $tokenStorage;
     }
 
     public function authenticate(Request $request): Passport
     {
         $username = $request->request->get('username', '');
-
         $session = $request->getSession();
         $session->set(Security::LAST_USERNAME, $username);
-//        $session->set('2factor', 'is_authenticated_partially');
-        $user = $this->userRepository->findOneBy(['username' => $username]);
-        $this->twoFactorManager->setAuthenticatedPartially($user);
+        $currentToken = $this->tokenStorage->getToken();
+        $user = $currentToken->getUser();
         $passport = new Passport(
             new UserBadge($username),
             new PasswordCredentials($request->request->get('password', '')),
             [
-                new CsrfTokenBadge('authenticate', $request->request->get('_csrf_token'))
+                new CsrfTokenBadge('authenticate', $request->request->get('_csrf_token')),
+                new TwoFactorBadge($user)
             ]
         );
-//        $passport->addBadge(new TwoFactorBadge($this->userRepository->findOneBy(['username' => $username])));
         return $passport;
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        /** @var User $user */
-        $user = $token->getUser();
-//        dump('success', $user);
-//        die();
-
-//        if ($user) {
-//            if ($user->isPasswordExpired()) {
-//                return new RedirectResponse($this->urlGenerator->generate('required_password_change'));
-//            }
-//            if ($this->twoFactorManager->isTwoFactorAuthenticationEnabled()) {
-//                $this->twoFactorManager->setAuthenticatedPartially($user);
-//                return new RedirectResponse($this->urlGenerator->generate('two_factor_authentication'));
-//            }
-//        }
-
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
             return new RedirectResponse($targetPath);
         }
-
-         return new RedirectResponse($this->urlGenerator->generate('front'));
+        return new RedirectResponse($this->urlGenerator->generate($this->loginSuccessRoute));
     }
 
     protected function getLoginUrl(Request $request): string
     {
-        return $this->urlGenerator->generate(self::LOGIN_ROUTE);
+        return $this->urlGenerator->generate($this->loginRoute);
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response

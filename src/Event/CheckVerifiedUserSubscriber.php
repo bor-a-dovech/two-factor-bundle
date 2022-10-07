@@ -12,6 +12,8 @@ use Symfony\Component\Security\Http\Event\CheckPassportEvent;
 class CheckVerifiedUserSubscriber implements EventSubscriberInterface
 {
 
+    private TwoFactorManager $twoFactorManager;
+
     public function __construct(
         TwoFactorManager $twoFactorManager
     )
@@ -27,23 +29,9 @@ class CheckVerifiedUserSubscriber implements EventSubscriberInterface
             throw new \Exception('Unexpected passport type');
         }
         $user = $passport->getUser();
-//        if (!$user instanceof User) {
-//            throw new \Exception('Unexpected user type');
-//        }
         if ($this->twoFactorManager->isAuthenticatedPartially($user)) {
-            throw new IsAuthenticatedPartiallyException('bad');
+            throw new IsAuthenticatedPartiallyException();
         }
-//        else {
-//            dump('fully');
-//            die();
-//        }
-//        dump('checking passport', $user, $this->twoFactorManager);
-//        die();
-//        if (!$user->getIsVerified()) {
-//            throw new CustomUserMessageAuthenticationException(
-//                'Please verify your account before logging in.'
-//            );
-//        }
     }
 
     public static function getSubscribedEvents(): array

@@ -2,18 +2,36 @@
 
 namespace Pantheon\TwoFactorBundle\Controller;
 
+use App\Infrastructure\Security\AppAuthenticator;
+use Pantheon\TwoFactorBundle\Form\Model\TwoFactorCodeModel;
+use Pantheon\TwoFactorBundle\Form\Type\TwoFactorCodeType;
+use Pantheon\TwoFactorBundle\Manager\TwoFactorManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 
 class TwoFactorController extends AbstractController
 {
-    /**
-     * @Route("/twofactor", name="twofactor_test")
-     */
-    public function twofactor(): Response
-    {
-        return new Response('ok');
+    private string $loginSuccessRoute;
+    private TwoFactorManagerInterface $twoFactorManager;
+    private Security $security;
+    private AppAuthenticator $appAuthenticator;
+    private UserAuthenticatorInterface $userAuthenticator;
+
+    public function __construct(
+        string $loginSuccessRoute,
+        TwoFactorManagerInterface $twoFactorManager,
+        Security $security,
+        AppAuthenticator $appAuthenticator,
+        UserAuthenticatorInterface $userAuthenticator
+    ) {
+        $this->loginSuccessRoute = $loginSuccessRoute;
+        $this->twoFactorManager = $twoFactorManager;
+        $this->security = $security;
+        $this->appAuthenticator = $appAuthenticator;
+        $this->userAuthenticator = $userAuthenticator;
     }
 
     /**
@@ -22,21 +40,16 @@ class TwoFactorController extends AbstractController
      */
     public function authentication(Request $request)
     {
-//        /** @var User $user */
-//        $user = $this->security->getUser();
-
-        $lastUserName = $request->getSession()->get(Security::LAST_USERNAME);
-        $user = $this->userRepository->findOneBy(['username' => $lastUserName]);
-
-//        if (!$user) {
-//            throw new NotFoundHttpException('not logged in');
-//        }
-        if (!$this->twoFactorManager->isTwoFactorAuthenticationEnabled()) {
-            throw new NotFoundHttpException('two factor authentication is not enabled');
+        $user = $this->security->getUser();
+        if (!$user) {
+            throw new NotFoundHttpException('User is not logged in');
         }
-//        if (!$this->twoFactorManager->isAuthenticatedPartially($user)) {
-//            throw new NotFoundHttpException('user is not authenticated partially');
-//        }
+        if (!$this->twoFactorManager->isTwoFactorAuthenticationAvailable()) {
+            throw new NotFoundHttpException('Two factor authentication is not available');
+        }
+        if (!$this->twoFactorManager->isAuthenticatedPartially($user)) {
+            throw new NotFoundHttpException('User is not authenticated partially');
+        }
         $codeModel = new TwoFactorCodeModel();
         $form = $this->createForm(TwoFactorCodeType::class, $codeModel,  ['csrf_protection' => false]);
         $form->handleRequest($request);
@@ -47,24 +60,16 @@ class TwoFactorController extends AbstractController
             /** @var TwoFactorCodeModel $codeModel */
             $codeModel = $form->getData();
             $code = $codeModel->getCode();
-            if ($this->twoFactorManager->isCodeValid($user, $code)) {
+            if ($this->twoFactorManager->isCodeValid($code, $user)) {
                 $this->twoFactorManager->setAutheticatedFully($user);
-
-
-                return $this->authenticator->authenticateUser($user, $this->appAuthenticator, $request);
-
-
-
-                return $this->redirectToRoute('front');
+                return $this->userAuthenticator->authenticateUser($user, $this->appAuthenticator, $request);
             } else {
                 $this->addFlash('error', 'Code is not correct.');
             }
         }
         return [
             'form' => $form->createView(),
-            'message' => null,
             'user' => $user,
         ];
     }
-
 }
