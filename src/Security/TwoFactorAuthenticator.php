@@ -3,7 +3,6 @@
 namespace Pantheon\TwoFactorBundle\Security;
 
 use Pantheon\TwoFactorBundle\Exception\IsAuthenticatedPartiallyException;
-use Pantheon\UserBundle\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

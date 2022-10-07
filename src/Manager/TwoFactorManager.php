@@ -11,7 +11,6 @@ use Pantheon\TwoFactorBundle\Service\Code\Storager\StoragerInterface;
 use Pantheon\TwoFactorBundle\Service\Code\Sender\SenderInterface;
 use Pantheon\TwoFactorBundle\Service\Code\Validator\ValidatorInterface;
 use Pantheon\TwoFactorBundle\Service\User\UserStatusInterface;
-use Pantheon\UserBundle\Entity\User;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class TwoFactorManager implements TwoFactorManagerInterface
