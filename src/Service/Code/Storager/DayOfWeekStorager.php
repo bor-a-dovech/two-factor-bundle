@@ -5,7 +5,7 @@ namespace Pantheon\TwoFactorBundle\Service\Code\Storager;
 use Pantheon\TwoFactorBundle\CodeRepository\NullRepository;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class DayOfWeekStorager implements SaverInterface
+class DayOfWeekStorager implements StoragerInterface
 {
     public function __construct(NullRepository $repository)
     {
