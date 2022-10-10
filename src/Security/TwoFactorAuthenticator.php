@@ -25,7 +25,6 @@ class TwoFactorAuthenticator extends AbstractLoginFormAuthenticator
     private string $loginRoute;
     private string $loginSuccessRoute;
     private UrlGeneratorInterface $urlGenerator;
-    private UserRepository $userRepository;
     private TokenStorageInterface $tokenStorage;
 
     public function __construct(
