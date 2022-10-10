@@ -2,7 +2,10 @@
 
 namespace Pantheon\TwoFactorBundle\Security;
 
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface;
 use Pantheon\TwoFactorBundle\Exception\IsAuthenticatedPartiallyException;
+use Pantheon\TwoFactorBundle\Service\User\Repository\UserRepositoryInterface;
+use Pantheon\TwoFactorBundle\Service\User\UserStatusInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,18 +29,24 @@ class TwoFactorAuthenticator extends AbstractLoginFormAuthenticator
     private string $loginSuccessRoute;
     private UrlGeneratorInterface $urlGenerator;
     private TokenStorageInterface $tokenStorage;
+    private UserRepositoryInterface $userRepository;
+    private UserStatusInterface $userStatusService;
 
     public function __construct(
         string $loginRoute,
         string $loginSuccessRoute,
         UrlGeneratorInterface $urlGenerator,
-        TokenStorageInterface $tokenStorage
+        TokenStorageInterface $tokenStorage,
+        UserRepositoryInterface $userRepository,
+        UserStatusInterface $userStatusService
     )
     {
         $this->loginRoute = $loginRoute;
         $this->loginSuccessRoute = $loginSuccessRoute;
         $this->urlGenerator = $urlGenerator;
         $this->tokenStorage = $tokenStorage;
+        $this->userRepository = $userRepository;
+        $this->userStatusService = $userStatusService;
     }
 
     public function authenticate(Request $request): Passport
@@ -45,14 +54,14 @@ class TwoFactorAuthenticator extends AbstractLoginFormAuthenticator
         $username = $request->request->get('username', '');
         $session = $request->getSession();
         $session->set(Security::LAST_USERNAME, $username);
-        $currentToken = $this->tokenStorage->getToken();
-        $user = $currentToken->getUser();
+        $user = $this->userRepository->getUser($username);
+
         $passport = new Passport(
             new UserBadge($username),
             new PasswordCredentials($request->request->get('password', '')),
             [
                 new CsrfTokenBadge('authenticate', $request->request->get('_csrf_token')),
-                new TwoFactorBadge($user)
+                new TwoFactorBadge($user, $this->userStatusService)
             ]
         );
         return $passport;

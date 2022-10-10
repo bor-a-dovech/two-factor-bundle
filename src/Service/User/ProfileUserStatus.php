@@ -2,10 +2,17 @@
 
 namespace Pantheon\TwoFactorBundle\Service\User;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class ProfileUserStatus implements UserStatusInterface
 {
+    private EntityManagerInterface $em;
+
+    public function __construct(EntityManagerInterface $em) {
+        $this->em = $em;
+    }
+
     /**
      * @param UserInterface $user
      * @return bool

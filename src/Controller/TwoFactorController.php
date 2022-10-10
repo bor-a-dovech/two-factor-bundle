@@ -6,11 +6,14 @@ use App\Infrastructure\Security\AppAuthenticator;
 use Pantheon\TwoFactorBundle\Form\Model\TwoFactorCodeModel;
 use Pantheon\TwoFactorBundle\Form\Type\TwoFactorCodeType;
 use Pantheon\TwoFactorBundle\Manager\TwoFactorManagerInterface;
+use Pantheon\TwoFactorBundle\Service\User\Repository\UserRepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
+use Symfony\Component\Routing\Annotation\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
 class TwoFactorController extends AbstractController
 {
@@ -19,30 +22,38 @@ class TwoFactorController extends AbstractController
     private Security $security;
     private AppAuthenticator $appAuthenticator;
     private UserAuthenticatorInterface $userAuthenticator;
+    private UserRepositoryInterface $userRepository;
 
     public function __construct(
         string $loginSuccessRoute,
         TwoFactorManagerInterface $twoFactorManager,
         Security $security,
         AppAuthenticator $appAuthenticator,
-        UserAuthenticatorInterface $userAuthenticator
+        UserAuthenticatorInterface $userAuthenticator,
+        UserRepositoryInterface $userRepository
     ) {
         $this->loginSuccessRoute = $loginSuccessRoute;
         $this->twoFactorManager = $twoFactorManager;
         $this->security = $security;
         $this->appAuthenticator = $appAuthenticator;
         $this->userAuthenticator = $userAuthenticator;
+        $this->userRepository = $userRepository;
     }
 
     /**
      * @Route("/two-factor-authentication", name="two_factor_authentication")
-     * @Template("two_factor/authentication.html.twig")
+     * @Template("@TwoFactor/authentication.html.twig")
      */
     public function authentication(Request $request)
     {
-        $user = $this->security->getUser();
+        $session = $request->getSession();
+        $username = $session->get(Security::LAST_USERNAME);
+        if (!$username) {
+            throw new NotFoundHttpException('There is no last username is Session');
+        }
+        $user = $this->userRepository->getUser($username);
         if (!$user) {
-            throw new NotFoundHttpException('User is not logged in');
+            throw new NotFoundHttpException('User not found');
         }
         if (!$this->twoFactorManager->isTwoFactorAuthenticationAvailable()) {
             throw new NotFoundHttpException('Two factor authentication is not available');
