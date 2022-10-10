@@ -2,9 +2,6 @@
 
 namespace Pantheon\TwoFactorBundle\Manager;
 
-use App\TwoFactor\Domain\Exception\SendCodeException;
-use App\TwoFactor\Provider\ProviderInterface;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 interface TwoFactorManagerInterface

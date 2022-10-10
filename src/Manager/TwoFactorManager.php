@@ -2,9 +2,6 @@
 
 namespace Pantheon\TwoFactorBundle\Manager;
 
-use App\TwoFactor\Domain\Exception\SendCodeException;
-use App\TwoFactor\Provider\ProviderInterface;
-use Doctrine\ORM\EntityManagerInterface;
 use Pantheon\TwoFactorBundle\Entity\TwoFactorAuthenticableInterface;
 use Pantheon\TwoFactorBundle\Service\Code\Generator\GeneratorInterface;
 use Pantheon\TwoFactorBundle\Service\Code\Storager\StoragerInterface;
@@ -15,8 +12,15 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class TwoFactorManager implements TwoFactorManagerInterface
 {
+    private bool $isTwoFactorAuthenticationAvailable;
+    private GeneratorInterface $generator;
+    private StoragerInterface $storager;
+    private SenderInterface $sender;
+    private ValidatorInterface $validator;
+    private UserStatusInterface $userStatusService;
+
     public function __construct(
-        bool $isTwoFactorAuthenticationAvaliable,
+        bool $isTwoFactorAuthenticationAvailable,
         GeneratorInterface $generator,
         StoragerInterface $storager,
         SenderInterface $sender,
@@ -24,7 +28,7 @@ class TwoFactorManager implements TwoFactorManagerInterface
         UserStatusInterface $userStatusService
     )
     {
-        $this->isTwoFactorAuthenticationAvaliable = $isTwoFactorAuthenticationAvaliable;
+        $this->isTwoFactorAuthenticationAvailable = $isTwoFactorAuthenticationAvailable;
         $this->generator = $generator;
         $this->storager = $storager;
         $this->sender = $sender;
@@ -58,9 +62,9 @@ class TwoFactorManager implements TwoFactorManagerInterface
     /**
      * @return bool
      */
-    public function isTwoFactorAuthenticationAvaliable() : bool
+    public function isTwoFactorAuthenticationAvailable() : bool
     {
-        return $this->isTwoFactorAuthenticationAvaliable;
+        return $this->isTwoFactorAuthenticationAvailable;
     }
 
     /**
