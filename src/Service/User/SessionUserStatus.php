@@ -31,4 +31,9 @@ class SessionUserStatus implements UserStatusInterface
     {
         $this->session->set('isUserAuthenticatedPartially', false);
     }
+
+    public function hasAuthenticatedStatus(UserInterface $user): bool
+    {
+        return !is_null($this->session->get('isUserAuthenticatedPartially'));
+    }
 }

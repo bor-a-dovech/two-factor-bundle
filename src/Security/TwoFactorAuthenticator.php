@@ -55,7 +55,9 @@ class TwoFactorAuthenticator extends AbstractLoginFormAuthenticator
         $session = $request->getSession();
         $session->set(Security::LAST_USERNAME, $username);
         $user = $this->userRepository->getUser($username);
-
+        if (!$this->userStatusService->hasAuthenticatedStatus($user)) {
+            $this->userStatusService->setAuthenticatedPartially($user);
+        }
         $passport = new Passport(
             new UserBadge($username),
             new PasswordCredentials($request->request->get('password', '')),

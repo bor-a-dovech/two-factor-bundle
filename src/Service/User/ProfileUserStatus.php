@@ -19,7 +19,7 @@ class ProfileUserStatus implements UserStatusInterface
      */
     public function isAuthenticatedPartially(UserInterface $user) : bool
     {
-        return ($user->isAuthenticatedPartially());
+        return $user->isAuthenticatedPartially();
     }
 
     /**
@@ -51,5 +51,10 @@ class ProfileUserStatus implements UserStatusInterface
         $user->setAuthenticatedPartially(false);
         $this->em->persist($user);
         $this->em->flush();
+    }
+
+    public function hasAuthenticatedStatus(UserInterface $user): bool
+    {
+        return $user->hasAuthenticatedStatus();
     }
 }

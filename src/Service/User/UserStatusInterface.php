@@ -10,4 +10,5 @@ interface UserStatusInterface
     public function isAuthenticatedFully(UserInterface $user) : bool;
     public function setAuthenticatedPartially(UserInterface $user) : void;
     public function setAutheticatedFully(UserInterface $user) : void;
+    public function hasAuthenticatedStatus(UserInterface $user) : bool;
 }
