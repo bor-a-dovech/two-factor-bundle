@@ -6,6 +6,7 @@ use App\Infrastructure\Security\AppAuthenticator;
 use Pantheon\TwoFactorBundle\Form\Model\TwoFactorCodeModel;
 use Pantheon\TwoFactorBundle\Form\Type\TwoFactorCodeType;
 use Pantheon\TwoFactorBundle\Manager\TwoFactorManagerInterface;
+use Pantheon\TwoFactorBundle\Service\ResendTimer\ResendTimerInterface;
 use Pantheon\TwoFactorBundle\Service\User\Repository\UserRepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,6 +24,7 @@ class TwoFactorController extends AbstractController
     private AppAuthenticator $appAuthenticator;
     private UserAuthenticatorInterface $userAuthenticator;
     private UserRepositoryInterface $userRepository;
+    private ResendTimerInterface $resendTimerService;
 
     public function __construct(
         string $loginSuccessRoute,
@@ -30,7 +32,8 @@ class TwoFactorController extends AbstractController
         Security $security,
         AppAuthenticator $appAuthenticator,
         UserAuthenticatorInterface $userAuthenticator,
-        UserRepositoryInterface $userRepository
+        UserRepositoryInterface $userRepository,
+        ResendTimerInterface $resendTimerService
     ) {
         $this->loginSuccessRoute = $loginSuccessRoute;
         $this->twoFactorManager = $twoFactorManager;
@@ -38,6 +41,7 @@ class TwoFactorController extends AbstractController
         $this->appAuthenticator = $appAuthenticator;
         $this->userAuthenticator = $userAuthenticator;
         $this->userRepository = $userRepository;
+        $this->resendTimerService = $resendTimerService;
     }
 
     /**
@@ -65,7 +69,9 @@ class TwoFactorController extends AbstractController
         $form = $this->createForm(TwoFactorCodeType::class, $codeModel,  ['csrf_protection' => false]);
         $form->handleRequest($request);
         if (!$form->isSubmitted()) {
-            $this->twoFactorManager->sendCode($user);
+            if ($this->resendTimerService->isCodeCanBeResendedNow()) {
+                $this->twoFactorManager->sendCode($user);
+            }
         }
         if ($form->isSubmitted() and $form->isValid()) {
             /** @var TwoFactorCodeModel $codeModel */
@@ -81,6 +87,7 @@ class TwoFactorController extends AbstractController
         return [
             'form' => $form->createView(),
             'user' => $user,
+            'secondsLeftToResend' => $this->resendTimerService->getRemainingSeconds(),
         ];
     }
 }

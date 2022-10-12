@@ -7,7 +7,9 @@ use Pantheon\TwoFactorBundle\Service\Code\Generator\GeneratorInterface;
 use Pantheon\TwoFactorBundle\Service\Code\Storager\StoragerInterface;
 use Pantheon\TwoFactorBundle\Service\Code\Sender\SenderInterface;
 use Pantheon\TwoFactorBundle\Service\Code\Validator\ValidatorInterface;
+use Pantheon\TwoFactorBundle\Service\ResendTimer\ResendTimerInterface;
 use Pantheon\TwoFactorBundle\Service\User\UserStatusInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class TwoFactorManager implements TwoFactorManagerInterface
@@ -18,6 +20,8 @@ class TwoFactorManager implements TwoFactorManagerInterface
     private SenderInterface $sender;
     private ValidatorInterface $validator;
     private UserStatusInterface $userStatusService;
+    private SessionInterface $session;
+    private ResendTimerInterface $resendTimerService;
 
     public function __construct(
         bool $isTwoFactorAuthenticationAvailable,
@@ -25,7 +29,9 @@ class TwoFactorManager implements TwoFactorManagerInterface
         StoragerInterface $storager,
         SenderInterface $sender,
         ValidatorInterface $validator,
-        UserStatusInterface $userStatusService
+        UserStatusInterface $userStatusService,
+        SessionInterface $session,
+        ResendTimerInterface $resendTimerService
     )
     {
         $this->isTwoFactorAuthenticationAvailable = $isTwoFactorAuthenticationAvailable;
@@ -34,6 +40,8 @@ class TwoFactorManager implements TwoFactorManagerInterface
         $this->sender = $sender;
         $this->validator = $validator;
         $this->userStatusService = $userStatusService;
+        $this->session = $session;
+        $this->resendTimerService = $resendTimerService;
     }
 
     /**
@@ -47,6 +55,7 @@ class TwoFactorManager implements TwoFactorManagerInterface
             $this->storager->save($code, $user);
             $this->sender->send($code, $user);
         }
+        $this->resendTimerService->startResendTimer();
     }
 
     /**
