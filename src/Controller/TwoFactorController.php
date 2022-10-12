@@ -6,6 +6,7 @@ use App\Infrastructure\Security\AppAuthenticator;
 use Pantheon\TwoFactorBundle\Form\Model\TwoFactorCodeModel;
 use Pantheon\TwoFactorBundle\Form\Type\TwoFactorCodeType;
 use Pantheon\TwoFactorBundle\Manager\TwoFactorManagerInterface;
+use Pantheon\TwoFactorBundle\Service\Expiration\ExpirationInterface;
 use Pantheon\TwoFactorBundle\Service\ResendTimer\ResendTimerInterface;
 use Pantheon\TwoFactorBundle\Service\User\Repository\UserRepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,6 +26,7 @@ class TwoFactorController extends AbstractController
     private UserAuthenticatorInterface $userAuthenticator;
     private UserRepositoryInterface $userRepository;
     private ResendTimerInterface $resendTimerService;
+    private ExpirationInterface $expirationService;
 
     public function __construct(
         string $loginSuccessRoute,
@@ -33,7 +35,8 @@ class TwoFactorController extends AbstractController
         AppAuthenticator $appAuthenticator,
         UserAuthenticatorInterface $userAuthenticator,
         UserRepositoryInterface $userRepository,
-        ResendTimerInterface $resendTimerService
+        ResendTimerInterface $resendTimerService,
+        ExpirationInterface $expirationService
     ) {
         $this->loginSuccessRoute = $loginSuccessRoute;
         $this->twoFactorManager = $twoFactorManager;
@@ -42,6 +45,7 @@ class TwoFactorController extends AbstractController
         $this->userAuthenticator = $userAuthenticator;
         $this->userRepository = $userRepository;
         $this->resendTimerService = $resendTimerService;
+        $this->expirationService = $expirationService;
     }
 
     /**
@@ -77,7 +81,9 @@ class TwoFactorController extends AbstractController
             /** @var TwoFactorCodeModel $codeModel */
             $codeModel = $form->getData();
             $code = $codeModel->getCode();
-            if ($this->twoFactorManager->isCodeValid($code, $user)) {
+            if ($this->expirationService->isCodeExpired()) {
+                $this->addFlash('error', 'Code has been expired.');
+            } elseif ($this->twoFactorManager->isCodeValid($code, $user)) {
                 $this->twoFactorManager->setAutheticatedFully($user);
                 return $this->userAuthenticator->authenticateUser($user, $this->appAuthenticator, $request);
             } else {
@@ -88,6 +94,7 @@ class TwoFactorController extends AbstractController
             'form' => $form->createView(),
             'user' => $user,
             'secondsLeftToResend' => $this->resendTimerService->getRemainingSeconds(),
+            'codeExpiresIn' => $this->expirationService->getExpirationTime(),
         ];
     }
 }

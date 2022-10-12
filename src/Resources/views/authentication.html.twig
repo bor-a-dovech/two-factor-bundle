@@ -80,11 +80,13 @@
                         {{ form_end(form) }}
 
                     </div>
+                    {% if codeExpiresIn != 0 %}
                     <p>
                         {% trans %}Code valid time:{% endtrans %}
-                        10
+                        {{ codeExpiresIn / 60 % 60 }}
                         {% trans %}minutes{% endtrans %}
                     </p>
+                    {% endif %}
                     <p>
                         <span id="sendAgainEnabled" class="d-none"><a href="{{ path('two_factor_authentication') }}">{% trans %}Send again{% endtrans %}</a></span>
                         <span id="sendAgainContainer">{% trans %}Send again{% endtrans %}</span>

@@ -7,6 +7,7 @@ use Pantheon\TwoFactorBundle\Service\Code\Generator\GeneratorInterface;
 use Pantheon\TwoFactorBundle\Service\Code\Storager\StoragerInterface;
 use Pantheon\TwoFactorBundle\Service\Code\Sender\SenderInterface;
 use Pantheon\TwoFactorBundle\Service\Code\Validator\ValidatorInterface;
+use Pantheon\TwoFactorBundle\Service\Expiration\ExpirationInterface;
 use Pantheon\TwoFactorBundle\Service\ResendTimer\ResendTimerInterface;
 use Pantheon\TwoFactorBundle\Service\User\UserStatusInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -22,6 +23,7 @@ class TwoFactorManager implements TwoFactorManagerInterface
     private UserStatusInterface $userStatusService;
     private SessionInterface $session;
     private ResendTimerInterface $resendTimerService;
+    private ExpirationInterface $expirationService;
 
     public function __construct(
         bool $isTwoFactorAuthenticationAvailable,
@@ -31,7 +33,9 @@ class TwoFactorManager implements TwoFactorManagerInterface
         ValidatorInterface $validator,
         UserStatusInterface $userStatusService,
         SessionInterface $session,
-        ResendTimerInterface $resendTimerService
+        ResendTimerInterface $resendTimerService,
+        ExpirationInterface $expirationService
+
     )
     {
         $this->isTwoFactorAuthenticationAvailable = $isTwoFactorAuthenticationAvailable;
@@ -42,6 +46,7 @@ class TwoFactorManager implements TwoFactorManagerInterface
         $this->userStatusService = $userStatusService;
         $this->session = $session;
         $this->resendTimerService = $resendTimerService;
+        $this->expirationService = $expirationService;
     }
 
     /**
@@ -56,6 +61,7 @@ class TwoFactorManager implements TwoFactorManagerInterface
             $this->sender->send($code, $user);
         }
         $this->resendTimerService->startResendTimer();
+        $this->expirationService->startExpirationTimer();
     }
 
     /**
