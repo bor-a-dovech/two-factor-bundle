@@ -5,6 +5,40 @@
 {% block header %}{% endblock %}
 
 {% block content %}
+    <script>
+        $(document).ready(function() {
+            let secondsLeft = $('#secondsLeftToResend').text() * 1;
+            let $sendAgainContainer = $('#sendAgainContainer');
+            let $sendAgainTimer = $('#sendAgainTimer');
+            let sendAgainEnabledHtml = $('#sendAgainEnabled').html();
+            $sendAgainTimer.text('(' + secondsToTime(secondsLeft) + ')');
+            if (secondsLeft > 0) {
+                let timer = setInterval(function() {
+                    secondsLeft--;
+                    if (secondsLeft > 0) {
+                        $sendAgainTimer.text('(' + secondsToTime(secondsLeft) + ')');
+                    } else {
+                        clearInterval(timer);
+                        $sendAgainContainer.html(sendAgainEnabledHtml);
+                        $sendAgainTimer.text('');
+                    }
+                }, 1000);
+            }
+            else {
+                $sendAgainContainer.html(sendAgainEnabledHtml);
+            }
+        });
+
+        function secondsToTime(seconds) {
+            let m = Math.floor(seconds / 60);
+            let s = seconds - m * 60;
+            if (s < 10) {
+                s = '0' + s;
+            }
+            return m + ':' + s;
+        }
+    </script>
+    <div id="secondsLeftToResend" class="d-none">{{ secondsLeftToResend }}</div>
     <div class="container-fluid h-100">
         <div class="row h-100">
             <div class="col-12 col-md-6 offset-md-3 col-xl-4 offset-xl-4 col-xxxl-4 offset-xxxl-4 h-100">
@@ -47,7 +81,14 @@
 
                     </div>
                     <p>
-                        <a href="#">{% trans %}Send again{% endtrans %}</a>
+                        {% trans %}Code valid time:{% endtrans %}
+                        10
+                        {% trans %}minutes{% endtrans %}
+                    </p>
+                    <p>
+                        <span id="sendAgainEnabled" class="d-none"><a href="{{ path('two_factor_authentication') }}">{% trans %}Send again{% endtrans %}</a></span>
+                        <span id="sendAgainContainer">{% trans %}Send again{% endtrans %}</span>
+                        <span id="sendAgainTimer">(0:00)</span>
                     </p>
                 </div>
             </div>
