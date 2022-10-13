@@ -42,10 +42,10 @@ services:
       $loginRoute: '%env(LOGIN_ROUTE)%'
       $loginSuccessRoute: '%env(LOGIN_SUCCESS_ROUTE)%'
 
-  Pantheon\TwoFactorBundle\Service\Code\Generator\GeneratorInterface: '@Pantheon\TwoFactorBundle\Service\Code\Generator\KekGenerator'
-  Pantheon\TwoFactorBundle\Service\Code\Generator\SenderInterface: '@Pantheon\TwoFactorBundle\Service\Code\Generator\DayOfWeekSender'
-  Pantheon\TwoFactorBundle\Service\Code\Generator\StoragerInterface: '@Pantheon\TwoFactorBundle\Service\Code\Generator\DayOfWeekStorager'
-  Pantheon\TwoFactorBundle\Service\Code\Generator\ValidatorInterface: '@Pantheon\TwoFactorBundle\Service\Code\Generator\DayOfWeekValidator'
+  Pantheon\TwoFactorBundle\Service\Code\Generator\GeneratorInterface: '@Pantheon\TwoFactorBundle\Service\Code\Generator\DayOfWeekGenerator'
+  Pantheon\TwoFactorBundle\Service\Code\Sender\SenderInterface: '@Pantheon\TwoFactorBundle\Service\Code\Sender\DayOfWeekSender'
+  Pantheon\TwoFactorBundle\Service\Code\Storager\StoragerInterface: '@Pantheon\TwoFactorBundle\Service\Code\Storager\DayOfWeekStorager'
+  Pantheon\TwoFactorBundle\Service\Code\Validator\ValidatorInterface: '@Pantheon\TwoFactorBundle\Service\Code\Validator\DayOfWeekValidator'
 
   Pantheon\TwoFactorBundle\Service\User\UserStatusInterface: '@Pantheon\TwoFactorBundle\Service\User\ProfileUserStatus'
 ```
