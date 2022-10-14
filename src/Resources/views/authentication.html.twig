@@ -9,25 +9,23 @@
         $(document).ready(function() {
             let secondsLeft = $('#secondsLeftToResend').text() * 1;
             let $sendAgainContainer = $('#sendAgainContainer');
-            if ($sendAgainContainer.length) {
-                let $sendAgainTimer = $('#sendAgainTimer');
-                let sendAgainEnabledHtml = $('#sendAgainEnabled').html();
-                $sendAgainTimer.text('(' + secondsToTime(secondsLeft) + ')');
-                if (secondsLeft > 0) {
-                    let timer = setInterval(function() {
-                        secondsLeft--;
-                        if (secondsLeft > 0) {
-                            $sendAgainTimer.text('(' + secondsToTime(secondsLeft) + ')');
-                        } else {
-                            clearInterval(timer);
-                            $sendAgainContainer.html(sendAgainEnabledHtml);
-                            $sendAgainTimer.text('');
-                        }
-                    }, 1000);
-                }
-                else {
-                    $sendAgainContainer.html(sendAgainEnabledHtml);
-                }
+            let $sendAgainTimer = $('#sendAgainTimer');
+            let sendAgainEnabledHtml = $('#sendAgainEnabled').html();
+            $sendAgainTimer.text('(' + secondsToTime(secondsLeft) + ')');
+            if (secondsLeft > 0) {
+                let timer = setInterval(function() {
+                    secondsLeft--;
+                    if (secondsLeft > 0) {
+                        $sendAgainTimer.text('(' + secondsToTime(secondsLeft) + ')');
+                    } else {
+                        clearInterval(timer);
+                        $sendAgainContainer.html(sendAgainEnabledHtml);
+                        $sendAgainTimer.text('');
+                    }
+                }, 1000);
+            }
+            else {
+                $sendAgainContainer.html(sendAgainEnabledHtml);
             }
         });
 
@@ -89,16 +87,11 @@
                         {% trans %}minutes{% endtrans %}
                     </p>
                     {% endif %}
-                    {% if codeCanNotBeResended is not defined or codeCanNotBeResended == false %}
-                        <p>
-                            <span id="sendAgainEnabled" class="d-none"><a href="{{ path('two_factor_authentication') }}">{% trans %}Send again{% endtrans %}</a></span>
-                            <span id="sendAgainContainer">{% trans %}Send again{% endtrans %}</span>
-                            <span id="sendAgainTimer">(0:00)</span>
-                        </p>
-                    {% endif %}
-
-{#                    {% if codeCanBeResended is defined and codeCanBeResended == true %}#}
-{#                    {% endif %}#}
+                    <p>
+                        <span id="sendAgainEnabled" class="d-none"><a href="{{ path('two_factor_authentication') }}">{% trans %}Send again{% endtrans %}</a></span>
+                        <span id="sendAgainContainer">{% trans %}Send again{% endtrans %}</span>
+                        <span id="sendAgainTimer">(0:00)</span>
+                    </p>
                 </div>
             </div>
         </div>
