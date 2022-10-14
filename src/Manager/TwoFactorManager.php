@@ -88,7 +88,10 @@ class TwoFactorManager implements TwoFactorManagerInterface
      */
     public function isTwoFactorAuthenticationAllowedForUser(UserInterface $user) : bool
     {
-        return (($user instanceof TwoFactorAuthenticableInterface) and ($user->isTwoFactorAuthenticationEnabled()));
+        return (($user instanceof TwoFactorAuthenticableInterface)
+            ? $user->isTwoFactorAuthenticationEnabled()
+            : true
+        );
     }
 
     /**
