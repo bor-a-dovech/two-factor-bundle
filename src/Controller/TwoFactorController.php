@@ -95,6 +95,7 @@ class TwoFactorController extends AbstractController
             'user' => $user,
             'secondsLeftToResend' => $this->resendTimerService->getRemainingSeconds(),
             'codeExpiresIn' => $this->expirationService->getExpirationTime(),
+            'codeCanNotBeResended' => ($this->expirationService->getExpirationTime() == 0),
         ];
     }
 }
