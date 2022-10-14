@@ -29,8 +29,12 @@ class CheckVerifiedUserSubscriber implements EventSubscriberInterface
             throw new \Exception('Unexpected passport type');
         }
         $user = $passport->getUser();
-        if ($this->twoFactorManager->isAuthenticatedPartially($user)) {
-            throw new IsAuthenticatedPartiallyException();
+        if ($this->twoFactorManager->isTwoFactorAuthenticationAvailable()) {
+            if ($this->twoFactorManager->isTwoFactorAuthenticationAllowedForUser($user)) {
+                if ($this->twoFactorManager->isAuthenticatedPartially($user)) {
+                    throw new IsAuthenticatedPartiallyException();
+                }
+            }
         }
     }
 
