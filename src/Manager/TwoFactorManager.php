@@ -88,7 +88,18 @@ class TwoFactorManager implements TwoFactorManagerInterface
      */
     public function isTwoFactorAuthenticationAllowedForUser(UserInterface $user) : bool
     {
-        return (($user instanceof TwoFactorAuthenticableInterface) and ($user->isTwoFactorAuthenticationEnabled()));
+        // 1. если он не заинтерфейсен, то точно да
+        return (($user instanceof TwoFactorAuthenticableInterface)
+            ? $user->isTwoFactorAuthenticationEnabled()
+            : true
+        );
+//        if (!($user instanceof TwoFactorAuthenticableInterface)) {
+//            return false;
+//        }
+//
+//        // 2. если заинтерфейсен, то смотрим в профиле
+//
+//        return (($user instanceof TwoFactorAuthenticableInterface) and ($user->isTwoFactorAuthenticationEnabled()));
     }
 
     /**

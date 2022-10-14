@@ -6,6 +6,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface;
 use Pantheon\TwoFactorBundle\Exception\IsAuthenticatedPartiallyException;
 use Pantheon\TwoFactorBundle\Service\User\Repository\UserRepositoryInterface;
 use Pantheon\TwoFactorBundle\Service\User\UserStatusInterface;
+use Pantheon\UserBundle\Entity\User;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -66,11 +67,24 @@ class TwoFactorAuthenticator extends AbstractLoginFormAuthenticator
                 new TwoFactorBadge($user, $this->userStatusService)
             ]
         );
+//        dump($user, $passport);
+//        die();
         return $passport;
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
+//        dump('success');
+//        die();
+        $session = $request->getSession();
+        $username = $session->get(Security::LAST_USERNAME);
+        /** @var User $user */
+        $user = $this->userRepository->getUser($username);
+        if (!$user->isTwoFactorAuthenticationEnabled()) {
+            return new RedirectResponse($this->urlGenerator->generate('app_user_yandexkey', [
+                'id' => $user->getId(),
+            ]));
+        }
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
             return new RedirectResponse($targetPath);
         }
@@ -84,6 +98,8 @@ class TwoFactorAuthenticator extends AbstractLoginFormAuthenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
+//        dump('failuer', $exception);
+//        die();
         $session = $request->getSession();
         if ($exception instanceof IsAuthenticatedPartiallyException) {
             $url = $this->urlGenerator->generate('two_factor_authentication');

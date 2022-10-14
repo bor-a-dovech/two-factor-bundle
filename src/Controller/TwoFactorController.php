@@ -3,6 +3,8 @@
 namespace Pantheon\TwoFactorBundle\Controller;
 
 use App\Infrastructure\Security\AppAuthenticator;
+use lfkeitel\phptotp\Base32;
+use lfkeitel\phptotp\Totp;
 use Pantheon\TwoFactorBundle\Form\Model\TwoFactorCodeModel;
 use Pantheon\TwoFactorBundle\Form\Type\TwoFactorCodeType;
 use Pantheon\TwoFactorBundle\Manager\TwoFactorManagerInterface;
@@ -46,6 +48,34 @@ class TwoFactorController extends AbstractController
         $this->userRepository = $userRepository;
         $this->resendTimerService = $resendTimerService;
         $this->expirationService = $expirationService;
+    }
+
+    /**
+     * @Route("/test", name="test")
+     */
+    public function test()
+    {
+
+        $secret = Totp::GenerateSecret(16);
+
+        $my = '2222222233333333';
+
+        $secret = Base32::decode($my);
+        $encoded = Base32::encode($secret);
+
+        dump($secret);
+
+
+
+
+        $key = (new Totp())->GenerateToken($secret);
+
+//        if ($user_submitted_key !== $key) {
+//            exit();
+//        }
+        dump($secret, $encoded, $key);
+        die();
+
     }
 
     /**
@@ -95,6 +125,7 @@ class TwoFactorController extends AbstractController
             'user' => $user,
             'secondsLeftToResend' => $this->resendTimerService->getRemainingSeconds(),
             'codeExpiresIn' => $this->expirationService->getExpirationTime(),
+            'codeCanNotBeResended' => ($this->expirationService->getExpirationTime() == 0),
         ];
     }
 }
